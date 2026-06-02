@@ -1,0 +1,21 @@
+# Never commit raw data or model files
+data/
+mlruns/
+mlartifacts/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Model binaries
+*.pkl
+*.joblib
+
+# Environment files
+.env
+.DS_Store
+.pytest_cache/
