@@ -19,3 +19,8 @@ build/
 .env
 .DS_Store
 .pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
