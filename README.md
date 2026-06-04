@@ -1,103 +1,99 @@
-# Credit Risk Probability Model for Alternative Data
+Credit Risk Modeling Project
+End-to-End Credit Risk Prediction System using Proxy Target & MLflow
 
-An end-to-end credit risk scoring system built for Bati Bank's 
-buy-now-pay-later service, using eCommerce transaction data.
+Project Overview
+This project builds a complete credit risk scoring system from scratch, following industry best practices (Basel II principles). Since the dataset does not contain actual default labels, a proxy target (is_high_risk) was engineered using RFM analysis and K-Means clustering.
+The solution includes:
 
----
+Feature engineering pipeline
+Proxy target creation
+Model training with experiment tracking
+Model deployment via FastAPI + Docker
+Automated CI/CD pipeline
 
-## Credit Scoring Business Understanding
 
-### 1. How does Basel II influence the need for interpretability?
-
-The Basel II Capital Accord requires banks to hold capital reserves 
-proportional to their credit risk. To satisfy regulators, a model must 
-be transparent and auditable — not just accurate. Regulators can ask 
-"why was this customer rejected?" and the bank must answer clearly.
-
-This is why interpretable models like Logistic Regression with Weight 
-of Evidence (WoE) encoding are standard in credit scoring. Every 
-coefficient maps directly to a scoreable customer attribute. Black-box 
-models like Gradient Boosting require additional validation effort and 
-post-hoc tools (e.g., SHAP values) to meet the same regulatory standard.
-
-In practice, Basel II turns model interpretability from a nice-to-have 
-into a compliance requirement.
-
-### 2. Why is a proxy variable necessary, and what risks does it introduce?
-
-The Xente eCommerce dataset contains no historical loan repayment data — 
-because the buy-now-pay-later product is new. Without a default label, 
-we cannot train a supervised model directly.
-
-A proxy variable is a substitute signal that correlates with the 
-unobservable outcome we care about (default). We construct this using 
-RFM analysis: customers who are disengaged (low frequency, low spending, 
-long since last transaction) are labeled as high-risk proxies.
-
-**Business risks this introduces:**
-- **Label noise**: A disengaged customer may have simply churned, not 
-  defaulted. The proxy conflates two different behaviors.
-- **Concept drift**: eCommerce engagement may not generalize to loan 
-  repayment behavior.
-- **Regulatory exposure**: If the proxy correlates with demographics 
-  (e.g., geography), it may introduce discriminatory lending outcomes.
-- **Feedback loops**: Denying credit to proxy-high-risk customers 
-  prevents them from ever building a repayment history.
-
-These risks must be disclosed in model documentation and monitored 
-continuously after deployment.
-
-### 3. Trade-offs: Logistic Regression vs Gradient Boosting
-
-| Dimension | Logistic Regression + WoE | Gradient Boosting |
-|-----------|--------------------------|-------------------|
-| Interpretability | High — coefficients are explainable | Low — needs SHAP |
-| Regulatory acceptance | High — standard in scorecards | Requires extra validation |
-| Predictive performance | Moderate | High |
-| Overfitting risk | Low | Higher without tuning |
-| Scorecard conversion | Straightforward | Complex |
-
-**In practice:** We train both. Logistic Regression is the auditable 
-baseline. Gradient Boosting is the performance benchmark. The final 
-choice balances AUC score against interpretability requirements.
-
----
-
-## Project Structure
-
-\```
-credit-risk-model/
-├── .github/workflows/ci.yml
-├── data/                    ← gitignored
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-│   └── eda.ipynb
+Project Structure
+Bashcredit-risk-model/
 ├── src/
-│   ├── data_processing.py
-│   ├── train.py
-│   ├── predict.py
+│   ├── data_processing.py          # Task 3 + Task 4
+│   ├── train.py                    # Task 5
 │   └── api/
 │       ├── main.py
 │       └── pydantic_models.py
 ├── tests/
 │   └── test_data_processing.py
+├── notebooks/
+│   └── eda.ipynb
+├── data/
+│   ├── raw/
+│   └── processed/
+├── .github/workflows/ci.yml        # CI/CD Pipeline
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
-\```
 
-## Setup
+Key Features
 
-\```bash
-pip install -r requirements.txt
-python src/data_processing.py
+Proxy Target Engineering: RFM + K-Means clustering to identify high-risk customers
+Feature Engineering: Aggregated transaction features, datetime components, scaling
+Modeling: Logistic Regression, Decision Tree, Random Forest with MLflow tracking
+Best Model: Random Forest (F1 Score: ~0.9987, ROC-AUC: ~1.0000)
+Deployment: FastAPI REST API with Docker containerization
+CI/CD: GitHub Actions with linting (flake8) and testing (pytest)
+
+
+How to Run the Project
+1. Install Dependencies
+Bashpip install -r requirements.txt
+2. Process Data (Task 3 + 4)
+Bashpython src/data_processing.py
+3. Train Models (Task 5)
+Bashmlflow ui   # Open in browser: http://127.0.0.1:5000
 python src/train.py
-uvicorn src.api.main:app --reload
-\```
+4. Run the API (Task 6)
+Option A: Using Docker (Recommended)
+Bashdocker-compose up --build
+Option B: Locally
+Bashuvicorn src.api.main:app --reload --port 8000
 
-## Team
-- Kerod
-- Mahbubah  
-- Feven
+API Endpoints
+
+GET / → Health check
+POST /predict → Predict credit risk probability
+
+Example Request Body:
+JSON{
+  "total_transaction_amount": 12500.0,
+  "avg_transaction_amount": 520.83,
+  "transaction_count": 24,
+  "std_transaction_amount": 340.5,
+  "max_transaction_amount": 1500.0,
+  "min_transaction_amount": 50.0,
+  "avg_transaction_hour": 14.2,
+  "unique_months_active": 6,
+  "Recency": 12,
+  "Frequency": 24,
+  "Monetary": 12500.0
+}
+
+Business Understanding Highlights
+
+Basel II Compliance: Emphasis on model interpretability and documentation
+Proxy Target: Used due to absence of default labels — introduces risk of mislabeling
+Model Trade-off: Chose Random Forest for performance while maintaining reasonable explainability
+
+
+Future Improvements
+
+Add SHAP/LIME explanations for model interpretability
+Implement WoE + IV feature selection
+Add A/B testing for model versions
+Deploy on cloud (AWS/Heroku)
+
+
+Team / Author
+
+Student:Dagmawit Dagne
+Project: Credit Risk Modeling (10 Academy)
+Completion Date: June 2026
